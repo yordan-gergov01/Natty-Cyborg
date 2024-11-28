@@ -3,19 +3,26 @@ import axios from "axios";
 
 function Login() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (!email || !loginPassword) return;
+
     try {
       const response = await axios.post("http://localhost:3000/login", {
         email,
-        password,
+        loginPassword,
       });
+      alert(response.data.message);
     } catch (error) {
       console.error(error.response.data.message);
+      alert("Login failed: " + error.response.data.message);
     }
+
+    setEmail("");
+    setLoginPassword("");
   }
 
   return (
@@ -30,9 +37,9 @@ function Login() {
       <input
         type="password"
         placeholder="**********"
-        value={password}
+        value={loginPassword}
         name="loginPassword"
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e) => setLoginPassword(e.target.value)}
       />
       <button type="submit">Cyber login</button>
     </form>

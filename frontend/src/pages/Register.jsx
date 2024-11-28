@@ -10,7 +10,7 @@ function Register() {
     e.preventDefault();
 
     try {
-      const response = await axios.post("https://localhost:3000/register", {
+      const response = await axios.post("http://localhost:3000/register", {
         name,
         email,
         password,
@@ -25,9 +25,24 @@ function Register() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="text" placeholder="John Smith" value={name} />
-      <input type="email" placeholder="johnsmith@gmail.com" value={email} />
-      <input type="password" placeholder="**********" value={password} />
+      <input
+        type="text"
+        placeholder="John Smith"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type="email"
+        placeholder="johnsmith@gmail.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="**********"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
       <button type="submit">Register as Cyborg</button>
     </form>
   );
