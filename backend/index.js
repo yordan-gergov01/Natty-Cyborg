@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import pg from "pg";
 import cors from "cors";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const app = express();
 const port = 3000;
@@ -19,35 +20,38 @@ const db = new pg.Client({
 db.connect();
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(bodyParser.json());
 app.use(cors());
 
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    const checkResult = await db.query(
-      "SELECT * FROM natty-cyborg WHERE email = $1",
-      [email]
-    );
+    const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
 
     if (checkResult.rows.length > 0) {
-      res.send("Email already exists. Try logging in.");
+      res
+        .status(400)
+        .json({ message: "Email already exists. Try logging in." });
     } else {
       bcrypt.hash(password, saltRounds, async (err, hash) => {
         if (err) {
           console.log("Error with hashing:", err);
         } else {
           const newUser = await db.query(
-            "INSERT INTO natty-cyborg (name, email, password) VALUES ($1, $2, $3)",
+            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
             [name, email, hash]
           );
           console.log(newUser);
+          res.status(201).json({ message: "User registered successfully." });
         }
       });
     }
   } catch (err) {
     console.log(err);
+    res.status(500).json({ message: "Server error." });
   }
 });
 
@@ -55,31 +59,28 @@ app.post("/login", async (req, res) => {
   const { email, loginPassword } = req.body;
 
   try {
-    const result = await db.query(
-      "SELECT * FROM natty-cyborg WHERE email = $1",
-      [email]
-    );
+    const result = await db.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
 
     if (result.rows.length > 0) {
       const user = result.rows[0];
-      const storedHashedPassword = user.password;
+      const validPassword = await bcrypt.compare(loginPassword, user.password);
 
-      bcrypt.compare(loginPassword, storedHashedPassword, (err, result) => {
-        if (err) {
-          console.log("Error comparing passwords:", err);
-        } else {
-          if (result) {
-            // render the home page
-          } else {
-            res.send("Incorrect password");
-          }
-        }
-      });
+      if (validPassword) {
+        const token = jwt.sign({ id: user.id }, "secretKey", {
+          expiresIn: "1h",
+        });
+        res.json({ token, message: "Login succesful." });
+      } else {
+        res.status(401).json({ message: "Invalid password." });
+      }
     } else {
-      res.send("User not found");
+      res.status(404).json({ message: "User not found." });
     }
   } catch (err) {
     console.log(err);
+    res.status(500).json({ message: "Server error." });
   }
 });
 
