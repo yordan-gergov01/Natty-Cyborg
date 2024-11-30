@@ -7,7 +7,7 @@ import DailyDashboard from "./pages/DailyDashboard";
 import Account from "./pages/Account";
 import Progress from "./pages/Progress";
 
-import Navbar from "./ui/Navbar";
+import MainNav from "./ui/MainNav";
 import AppLayout from "./ui/AppLayout";
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
@@ -15,7 +15,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 function App() {
   return (
     <Router>
-      <Navbar />
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<Navigate replace to="/dashboard" />} />

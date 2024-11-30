@@ -1,5 +1,13 @@
+import Logo from "./Logo";
+import MainNav from "./MainNav";
+
 function Sidebar() {
-  return <aside>Sidebar menu</aside>;
+  return (
+    <aside className="w-64 bg-gray-100 text-white h-screen p-4 flex flex-col">
+      <Logo />
+      <MainNav />
+    </aside>
+  );
 }
 
 export default Sidebar;

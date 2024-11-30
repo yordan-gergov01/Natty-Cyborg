@@ -1,5 +1,7 @@
 function Header() {
-  return <header>Header</header>;
+  return (
+    <header className="w-full bg-white text-black p-4 flex">Header</header>
+  );
 }
 
 export default Header;
