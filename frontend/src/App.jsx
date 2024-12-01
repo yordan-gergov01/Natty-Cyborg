@@ -7,7 +7,6 @@ import DailyDashboard from "./pages/DailyDashboard";
 import Account from "./pages/Account";
 import Progress from "./pages/Progress";
 
-import MainNav from "./ui/MainNav";
 import AppLayout from "./ui/AppLayout";
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
