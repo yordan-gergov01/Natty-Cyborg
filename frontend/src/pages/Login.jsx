@@ -15,6 +15,9 @@ function Login() {
         email,
         loginPassword,
       });
+
+      localStorage.setItem("jwtToken", response.data.token);
+
       alert(response.data.message);
     } catch (error) {
       console.error(error.response.data.message);
