@@ -1,6 +1,10 @@
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import {
+  validateEmail,
+  validatePassword,
+} from "../features/authentication/validation";
 
 function Register() {
   const [name, setName] = useState("");
@@ -13,7 +17,22 @@ function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (!name || !email || !password) return;
+    if (!name || !email || !password) {
+      alert("All fields are required!");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      alert("Invalid email address!");
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      alert(
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and special character (e.g. '@, $, #')."
+      );
+      return;
+    }
 
     if (password !== confirmPassword) {
       alert("Password do not match!");
