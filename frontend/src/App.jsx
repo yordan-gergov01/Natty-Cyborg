@@ -10,12 +10,20 @@ import Progress from "./pages/Progress";
 import AppLayout from "./ui/AppLayout";
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import ProtectedRoute from "./ui/ProtectedRoute";
+import IntroPage from "./pages/IntroPage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route element={<AppLayout />}>
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate replace to="/dashboard" />} />
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/meals" element={<MealPlan />} />
@@ -23,6 +31,7 @@ function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/progress" element={<Progress />} />
         </Route>
+        <Route path="/intro" element={<IntroPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<PageNotFound />} />
