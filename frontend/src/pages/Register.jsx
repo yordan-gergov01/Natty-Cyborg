@@ -1,13 +1,24 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (!name || !email || !password) return;
+
+    if (password !== confirmPassword) {
+      alert("Password do not match!");
+      return;
+    }
 
     try {
       const response = await axios.post("http://localhost:3000/register", {
@@ -16,11 +27,22 @@ function Register() {
         password,
       });
 
+      localStorage.setItem("jwtToken", response.data.token);
+
       alert(response.data.message);
+      navigate("/dashboard");
     } catch (error) {
       console.log(error);
-      alert("Registration failed: " + error.response.data.message);
+      alert(
+        "Registration failed: " +
+          (error.response?.data?.message || "Unknown error")
+      );
     }
+
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
   }
 
   return (
@@ -57,6 +79,16 @@ function Register() {
             placeholder="**********"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Confirm Password</label>
+          <input
+            type="password"
+            placeholder="**********"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
           />
         </div>
