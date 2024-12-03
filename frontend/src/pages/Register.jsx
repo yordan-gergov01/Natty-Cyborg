@@ -11,6 +11,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
 
@@ -18,25 +19,43 @@ function Register() {
     e.preventDefault();
 
     if (!name || !email || !password) {
-      alert("All fields are required!");
+      setErrors((prev) => ({ ...prev, fields: "All fields are required!" }));
       return;
     }
 
-    if (!validateEmail(email)) {
-      alert("Invalid email address!");
+    if (!name) {
+      setErrors((prev) => ({ ...prev, name: "Full name is required!" }));
       return;
+    } else {
+      setErrors((prev) => ({ ...prev, name: null }));
     }
 
-    if (!validatePassword(password)) {
-      alert(
-        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and special character (e.g. '@, $, #')."
-      );
+    if (!email || !validateEmail(email)) {
+      setErrors((prev) => ({ ...prev, email: "Invalid email address!" }));
       return;
+    } else {
+      setErrors((prev) => ({ ...prev, email: null }));
+    }
+
+    if (!password || !validatePassword(password)) {
+      setErrors((prev) => ({
+        ...prev,
+        password:
+          "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and special character (e.g. '@, $, #').",
+      }));
+      return;
+    } else {
+      setErrors((prev) => ({ ...prev, password: null }));
     }
 
     if (password !== confirmPassword) {
-      alert("Password do not match!");
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: "Passwords do not match!",
+      }));
       return;
+    } else {
+      setErrors((prev) => ({ ...prev, confirmPassword: null }));
     }
 
     try {
@@ -49,6 +68,7 @@ function Register() {
       localStorage.setItem("jwtToken", response.data.token);
 
       alert(response.data.message);
+      setErrors({});
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
@@ -78,8 +98,13 @@ function Register() {
             placeholder="John Smith"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+            className={`w-full px-3 py-2 border ${
+              errors.name ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:outline-none focus:ring ${
+              errors.name ? "focus:ring-red-500" : "focus:ring-blue-500"
+            }`}
           />
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700">Email</label>
@@ -88,8 +113,15 @@ function Register() {
             placeholder="johnsmith@gmail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+            className={`w-full px-3 py-2 border ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:outline-none focus:ring ${
+              errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
+            }`}
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700">Password</label>
@@ -98,8 +130,15 @@ function Register() {
             placeholder="**********"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+            className={`w-full px-3 py-2 border ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:outline-none focus:ring ${
+              errors.password ? "focus:ring-red-500" : "focus:ring-blue-500"
+            }`}
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700">Confirm Password</label>
@@ -108,9 +147,21 @@ function Register() {
             placeholder="**********"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+            className={`w-full px-3 py-2 border ${
+              errors.confirmPassword ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:outline-none focus:ring ${
+              errors.confirmPassword
+                ? "focus:ring-red-500"
+                : "focus:ring-blue-500"
+            }`}
           />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+          )}
         </div>
+        {errors.fields && (
+          <p className="text-red-500 text-sm">{errors.fields}</p>
+        )}
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
