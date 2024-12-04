@@ -1,17 +1,30 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { validateEmail } from "../features/authentication/validation";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (!email || !loginPassword) return;
+    if (!email) {
+      setErrors((prev) => ({ ...prev, email: "Email is required!" }));
+      return;
+    } else if (!validateEmail(email)) {
+      setErrors((prev) => ({ ...prev, email: "Invalid email address!" }));
+      return;
+    }
+
+    if (!loginPassword) {
+      setErrors((prev) => ({ ...prev, password: "Password is required!" }));
+      return;
+    }
 
     try {
       const response = await axios.post("http://localhost:3000/login", {
@@ -49,8 +62,15 @@ function Login() {
             value={email}
             name="email"
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+            className={`w-full px-3 py-2 border ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:outline-none focus:ring ${
+              errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
+            }`}
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700">Password</label>
@@ -60,8 +80,15 @@ function Login() {
             value={loginPassword}
             name="loginPassword"
             onChange={(e) => setLoginPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+            className={`w-full px-3 py-2 border ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:outline-none focus:ring ${
+              errors.password ? "focus:ring-red-500" : "focus:ring-blue-500"
+            }`}
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
         </div>
         <button
           type="submit"
