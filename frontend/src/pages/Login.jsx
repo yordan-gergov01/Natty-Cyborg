@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import { validateEmail } from "../features/authentication/validation";
+import toast from "react-hot-toast";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -34,11 +35,11 @@ function Login() {
 
       localStorage.setItem("jwtToken", response.data.token);
 
-      alert(response.data.message);
+      toast.success(response.data.message);
       navigate("/dashboard");
     } catch (error) {
       console.error(error.response.data.message);
-      alert(
+      toast.error(
         "Login failed: " + (error.response?.data?.message || "Unknown error")
       );
     }

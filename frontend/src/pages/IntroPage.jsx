@@ -9,7 +9,7 @@ function IntroPage() {
       </p>
       <div className="mt-8 flex gap-4">
         <Link to="/login" className="px-4 py-2 bg-blue-500 text-white rounded">
-          Login
+          Sign In
         </Link>
         <Link
           to="/register"
