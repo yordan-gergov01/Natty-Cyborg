@@ -1,7 +1,8 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router";
 import { validateEmail } from "../features/authentication/validation";
+
+import axios from "axios";
 import toast from "react-hot-toast";
 
 function Login() {

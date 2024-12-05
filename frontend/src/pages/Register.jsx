@@ -1,10 +1,13 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+
 import {
   validateEmail,
   validatePassword,
 } from "../features/authentication/validation";
+
+import axios from "axios";
+import toast from "react-hot-toast";
 
 function Register() {
   const [name, setName] = useState("");
@@ -67,12 +70,12 @@ function Register() {
 
       localStorage.setItem("jwtToken", response.data.token);
 
-      alert(response.data.message);
+      toast.success(response.data.message);
       setErrors({});
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
-      alert(
+      toast.error(
         "Registration failed: " +
           (error.response?.data?.message || "Unknown error")
       );
