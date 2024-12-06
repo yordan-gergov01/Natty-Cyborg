@@ -4,17 +4,19 @@ import pg from "pg";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import env from "dotenv";
 
 const app = express();
 const port = 3000;
 const saltRounds = 10;
+env.config();
 
 const db = new pg.Client({
-  user: "postgres",
-  host: "localhost",
-  database: "natty-cyborg",
-  password: "Yordangergov2001",
-  port: 5432,
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
 });
 
 db.connect();
@@ -39,6 +41,7 @@ app.post("/register", async (req, res) => {
       bcrypt.hash(password, saltRounds, async (err, hash) => {
         if (err) {
           console.log("Error with hashing:", err);
+          return;
         } else {
           const newUser = await db.query(
             "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
@@ -68,7 +71,7 @@ app.post("/login", async (req, res) => {
       const validPassword = await bcrypt.compare(loginPassword, user.password);
 
       if (validPassword) {
-        const token = jwt.sign({ id: user.id }, "secretKey", {
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
           expiresIn: "1h",
         });
         res.json({ token, message: "Login succesful." });
