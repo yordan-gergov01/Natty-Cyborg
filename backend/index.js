@@ -5,11 +5,12 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import env from "dotenv";
+import { rateLimit } from "express-rate-limit";
 
 const app = express();
 const port = 3000;
 const saltRounds = 10;
-env.config();
+env.config({ path: "../frontend/.env" });
 
 const db = new pg.Client({
   user: process.env.PG_USER,
@@ -21,6 +22,13 @@ const db = new pg.Client({
 
 db.connect();
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  message: "Too many login attempts, please try again later.",
+});
+
+app.use("/login", limiter);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());

@@ -40,9 +40,13 @@ function Login() {
       navigate("/dashboard");
     } catch (error) {
       console.error(error.response.data.message);
-      toast.error(
-        "Login failed: " + (error.response?.data?.message || "Unknown error")
-      );
+      if (error.response?.status === 429) {
+        toast.error("Too many login attempts, please try again later.");
+      } else {
+        toast.error(
+          "Login failed: " + (error.response?.data?.message || "Unknown error")
+        );
+      }
     }
 
     setEmail("");
