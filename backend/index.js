@@ -5,7 +5,10 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import env from "dotenv";
+import GoogleStrategy from "passport-google-oauth2";
 import { rateLimit } from "express-rate-limit";
+import passport from "passport";
+import session from "express-session";
 
 const app = express();
 const port = 3000;
@@ -28,10 +31,39 @@ const limiter = rateLimit({
   message: "Too many login attempts, please try again later.",
 });
 
+app.use(
+  session({
+    secret: process.env.MY_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 app.use("/login", limiter);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login",
+  }),
+  (req, res) => {
+    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.redirect(`http://localhost:5176/dashboard?token=${token}`);
+  }
+);
 
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
@@ -93,6 +125,30 @@ app.post("/login", async (req, res) => {
     console.log(err);
     res.status(500).json({ message: "Server error." });
   }
+});
+
+passport.use(
+  "google",
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:3000/auth/google/callback",
+      userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      console.log("Profile", profile);
+      done(null, profile);
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
 });
 
 app.listen(port, () => {

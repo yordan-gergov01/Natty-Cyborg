@@ -96,12 +96,29 @@ function Login() {
             <p className="text-red-500 text-sm">{errors.password}</p>
           )}
         </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
-        >
-          Cyber login
-        </button>
+        <div className="flex flex-col items-center">
+          <button
+            type="submit"
+            className="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-300 transition"
+          >
+            Cyber login
+          </button>
+
+          <div className="flex items-center w-full my-4">
+            <div className="border-t border-gray-300 flex-grow"></div>
+            <span className="mx-4 text-gray-500">Or Sign In With</span>
+            <div className="border-t border-gray-300 flex-grow"></div>
+          </div>
+
+          <button
+            onClick={() =>
+              (window.location.href = "http://localhost:3000/auth/google")
+            }
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-300 transition"
+          >
+            Sign In With Google
+          </button>
+        </div>
       </form>
     </div>
   );
