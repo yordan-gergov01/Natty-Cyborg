@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { validateEmail } from "../features/authentication/validation";
 
+import { FaGoogle } from "react-icons/fa";
+
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -114,9 +116,10 @@ function Login() {
             onClick={() =>
               (window.location.href = "http://localhost:3000/auth/google")
             }
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-300 transition"
+            className="bg-blue-500 text-white items-center px-4 flex justify-center gap-2 py-2 rounded-lg w-full hover:bg-blue-300 transition"
           >
-            Sign In With Google
+            <FaGoogle />
+            Google
           </button>
         </div>
       </form>
