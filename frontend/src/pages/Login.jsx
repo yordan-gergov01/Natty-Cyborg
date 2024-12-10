@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { validateEmail } from "../features/authentication/validation";
 
 import { FaGoogle } from "react-icons/fa";
@@ -61,7 +61,15 @@ function Login() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-lg shadow-md w-96"
       >
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+        <h2 className="text-2xl text-center font-bold mb-4">
+          Login To Your Account
+        </h2>
+        <h3 className="text-sm text-center mb-5">
+          Don&apos;t have an account?{" "}
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Sign Up
+          </Link>
+        </h3>
         <div className="mb-4">
           <label className="block text-gray-700">Email</label>
           <input
@@ -103,7 +111,7 @@ function Login() {
             type="submit"
             className="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-300 transition"
           >
-            Cyber login
+            Login With Email
           </button>
 
           <div className="flex items-center w-full my-4">
