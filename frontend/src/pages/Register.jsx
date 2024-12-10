@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import {
   validateEmail,
@@ -93,7 +93,15 @@ function Register() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-lg shadow-md w-96"
       >
-        <h2 className="text-2xl	font-bold mb-4">Register as Cyborg</h2>
+        <h2 className="text-2xl	text-center font-bold mb-4">
+          Create Your Account
+        </h2>
+        <h3 className="text-sm text-center mb-5">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Sign in
+          </Link>
+        </h3>
         <div className="mb-4">
           <label className="block text-gray-700">Full Name</label>
           <input
