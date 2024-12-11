@@ -188,9 +188,11 @@ function Register() {
         </div>
 
         <button
-          onClick={() =>
-            (window.location.href = "http://localhost:3000/auth/google")
-          }
+          onClick={(e) => {
+            e.preventDefault()(
+              (window.location.href = "http://localhost:3000/auth/google")
+            );
+          }}
           className="bg-blue-500 text-white items-center px-4 flex justify-center gap-2 py-2 rounded-lg w-full hover:bg-blue-300 transition"
         >
           <FaGoogle />
