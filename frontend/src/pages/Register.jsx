@@ -8,6 +8,7 @@ import {
 
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FaGoogle } from "react-icons/fa";
 
 function Register() {
   const [name, setName] = useState("");
@@ -175,9 +176,25 @@ function Register() {
         )}
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
+          className="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-300 transition"
         >
           Register
+        </button>
+
+        <div className="flex items-center w-full my-4">
+          <div className="border-t border-gray-300 flex-grow"></div>
+          <span className="mx-4 text-gray-500">Or Sign Up With</span>
+          <div className="border-t border-gray-300 flex-grow"></div>
+        </div>
+
+        <button
+          onClick={() =>
+            (window.location.href = "http://localhost:3000/auth/google")
+          }
+          className="bg-blue-500 text-white items-center px-4 flex justify-center gap-2 py-2 rounded-lg w-full hover:bg-blue-300 transition"
+        >
+          <FaGoogle />
+          Google
         </button>
       </form>
     </div>

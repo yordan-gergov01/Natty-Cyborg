@@ -14,6 +14,8 @@ import ProtectedRoute from "./ui/ProtectedRoute";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 
 import { Toaster } from "react-hot-toast";
+import GoogleSignUp from "./features/authentication/GoogleSignUp";
+import GoogleSignIn from "./features/authentication/GoogleSignIn";
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
           <Route path="/intro" element={<IntroPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/google-login" element={<GoogleSignIn />} />
+          <Route path="/signup-google" element={<GoogleSignUp />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Router>

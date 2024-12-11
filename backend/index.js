@@ -43,7 +43,13 @@ app.use(passport.session());
 app.use("/login", limiter);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: "GET,POST",
+    credentials: true,
+  })
+);
 
 app.get(
   "/auth/google",
@@ -55,15 +61,50 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "/login",
+    session: false,
   }),
-  (req, res) => {
-    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    res.redirect(`http://localhost:5176/dashboard?token=${token}`);
+  async (req, res) => {
+    try {
+      const user = await db.query("SELECT * FROM users WHERE google_id = $1", [
+        req.user.id,
+      ]);
+
+      if (user.rows.length > 0) {
+        const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
+          expiresIn: "1h",
+        });
+        res.redirect(`http://localhost:5173/google-login?token=${token}`);
+      } else {
+        res.redirect(
+          `http://localhost:5173/signup-google?googleId=${req.user.id}&email=${req.user.emails[0].value}&name=${req.user.name.givenName}`
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Server error." });
+    }
   }
 );
+
+app.post("/auth/google/signup", async (req, res) => {
+  const { googleId, email, name } = req.body;
+
+  try {
+    const newUser = await db.query(
+      "INSERT INTO users (google_id, email, name) VALUES ($1, $2, $3) RETURNING *",
+      [googleId, email, name]
+    );
+
+    const token = jwt.sign({ id: newUser.rows[0].id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.json({ token, message: "Account created successfully!" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error." });
+  }
+});
 
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
@@ -72,7 +113,7 @@ app.post("/register", async (req, res) => {
     const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
-
+    //see for token here after register
     if (checkResult.rows.length > 0) {
       res
         .status(400)
@@ -102,21 +143,33 @@ app.post("/login", async (req, res) => {
   const { email, loginPassword } = req.body;
 
   try {
-    const result = await db.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    const result = await db.query(
+      "SELECT * FROM users WHERE email = $1 OR google_id = $2",
+      [email, email]
+    );
 
     if (result.rows.length > 0) {
       const user = result.rows[0];
-      const validPassword = await bcrypt.compare(loginPassword, user.password);
 
-      if (validPassword) {
+      if (user.password) {
+        const validPassword = await bcrypt.compare(
+          loginPassword,
+          user.password
+        );
+
+        if (validPassword) {
+          const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+          });
+          res.json({ token, message: "Login successful." });
+        } else {
+          res.status(401).json({ message: "Invalid password." });
+        }
+      } else {
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
           expiresIn: "1h",
         });
-        res.json({ token, message: "Login succesful." });
-      } else {
-        res.status(401).json({ message: "Invalid password." });
+        res.json({ token, message: "Login successful." });
       }
     } else {
       res.status(404).json({ message: "User not found." });
@@ -144,11 +197,22 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user);
+  done(null, user.id);
 });
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
+passport.deserializeUser(async (googleId, done) => {
+  try {
+    const result = await db.query("SELECT * FROM users WHERE google_id = $1", [
+      googleId,
+    ]);
+    if (result.rows.length > 0) {
+      done(null, result.rows[0]);
+    } else {
+      done(new Error("User not found!"), null);
+    }
+  } catch (err) {
+    done(err, null);
+  }
 });
 
 app.listen(port, () => {
