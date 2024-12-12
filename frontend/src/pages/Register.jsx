@@ -73,7 +73,7 @@ function Register() {
 
       toast.success(response.data.message);
       setErrors({});
-      navigate("/dashboard");
+      navigate("/login");
     } catch (error) {
       console.log(error);
       toast.error(

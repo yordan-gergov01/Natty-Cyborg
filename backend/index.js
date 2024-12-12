@@ -70,9 +70,16 @@ app.get(
       ]);
 
       if (user.rows.length > 0) {
-        const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
-          expiresIn: "1h",
-        });
+        const token = jwt.sign(
+          {
+            id: user.rows[0].id,
+            name: user.rows[0].name,
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1h",
+          }
+        );
         res.redirect(`http://localhost:5173/google-login?token=${token}`);
       } else {
         res.redirect(
@@ -158,10 +165,20 @@ app.post("/login", async (req, res) => {
         );
 
         if (validPassword) {
-          const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-            expiresIn: "1h",
+          const token = jwt.sign(
+            { id: user.id, name: user.name },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "1h",
+            }
+          );
+          res.json({
+            token,
+            user: {
+              name: user.name,
+            },
+            message: "Login successful.",
           });
-          res.json({ token, message: "Login successful." });
         } else {
           res.status(401).json({ message: "Invalid password." });
         }

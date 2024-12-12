@@ -36,18 +36,6 @@ function MainNav() {
         <GiProgression />
         <span>My Progress</span>
       </Link>
-      <Link
-        to="/login"
-        className="p-2 text-gray-700 hover:bg-gray-400 rounded transition flex items-center gap-2"
-      >
-        Login
-      </Link>
-      <Link
-        to="/register"
-        className="p-2 text-gray-700 hover:bg-gray-400 rounded transition flex items-center gap-2"
-      >
-        Register as Cyborg
-      </Link>
     </nav>
   );
 }

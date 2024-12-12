@@ -37,6 +37,7 @@ function Login() {
       });
 
       localStorage.setItem("jwtToken", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
       toast.success(response.data.message);
       navigate("/dashboard");
