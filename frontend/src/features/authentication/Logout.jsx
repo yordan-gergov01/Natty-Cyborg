@@ -6,6 +6,7 @@ function Logout() {
 
   function handleLogout() {
     localStorage.removeItem("jwtToken");
+    localStorage.removeItem("user");
     navigate("/login");
   }
   return (
