@@ -2,6 +2,9 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
+    fontFamily: {
+      sans: "Poppins",
+    },
     extend: {
       animation: {
         wobble: "wobble 1s ease-in-out infinite",
