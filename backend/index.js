@@ -80,7 +80,9 @@ app.get(
             expiresIn: "1h",
           }
         );
-        res.redirect(`http://localhost:5173/google-login?token=${token}`);
+        res.redirect(
+          `http://localhost:5173/google-login?token=${token}&name=${user.rows[0].name}`
+        );
       } else {
         res.redirect(
           `http://localhost:5173/signup-google?googleId=${req.user.id}&email=${req.user.emails[0].value}&name=${req.user.name.givenName}`
@@ -105,7 +107,6 @@ app.post("/auth/google/signup", async (req, res) => {
     const token = jwt.sign({ id: newUser.rows[0].id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-
     res.json({ token, message: "Account created successfully!" });
   } catch (err) {
     console.log(err);

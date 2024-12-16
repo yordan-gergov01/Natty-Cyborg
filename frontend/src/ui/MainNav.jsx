@@ -20,7 +20,7 @@ function MainNav() {
         className="p-2 text-xl text-gray-700 hover:bg-gray-400 rounded transition flex items-center gap-2"
       >
         <CgGym />
-        <span>My Workouts</span>
+        <span>Workouts</span>
       </Link>
       <Link
         to="/meals"
