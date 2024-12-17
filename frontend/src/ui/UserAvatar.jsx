@@ -4,20 +4,21 @@ function UserAvatar() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    const token = localStorage.getItem("jwtToken");
+    const name = localStorage.getItem("userName");
+    if (token && name) {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
+        setUser({ token, name });
       } catch (err) {
         console.log("Error parsing data from local storage:", err);
-        localStorage.removeItem("user");
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("userName");
       }
     }
   }, []);
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div>Error: User data not found!</div>;
   }
   return (
     <div className="flex p-4">
