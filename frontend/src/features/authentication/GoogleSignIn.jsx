@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
+import Loader from "../../ui/Loader";
 
 function GoogleSignIn() {
   const navigate = useNavigate();
@@ -14,12 +15,12 @@ function GoogleSignIn() {
       localStorage.setItem("userName", name);
       setTimeout(() => {
         navigate("/dashboard");
-      }, 500);
+      }, 100);
     } else {
       navigate("/intro");
     }
   }, [navigate]);
-  return <div>Loading...</div>;
+  return <Loader />;
 }
 
 export default GoogleSignIn;

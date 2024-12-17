@@ -40,7 +40,7 @@ function LoginForm() {
       });
 
       localStorage.setItem("jwtToken", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("userName", response.data.user.name);
 
       toast.success(response.data.message);
       navigate("/dashboard");
