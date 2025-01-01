@@ -5,9 +5,7 @@ import MainNav from "./MainNav";
 
 import { FiMenu } from "react-icons/fi";
 
-function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
-
+function Sidebar({ isOpen, toggleSidebar }) {
   return (
     <aside
       className={`${
@@ -18,7 +16,7 @@ function Sidebar() {
         <Logo />
         <button
           className="md:hidden text-white text-2xl"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleSidebar}
         >
           <FiMenu />
         </button>

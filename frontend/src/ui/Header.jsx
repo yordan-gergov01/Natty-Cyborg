@@ -1,11 +1,18 @@
+import { FiMenu } from "react-icons/fi";
+
 import HeaderMenu from "./HeaderMenu";
 import UserAvatar from "./UserAvatar";
 
-function Header() {
+function Header({ toggleSidebar }) {
   return (
-    <header className="w-full bg-white gap-4 text-black py-2 px-4 flex justify-end items-center">
-      <UserAvatar />
-      <HeaderMenu />
+    <header className="w-full bg-gray-800 gap-4 text-white py-2 px-4 flex justify-between items-center md:justify-end">
+      <button className="md:hidden text-2xl" onClick={toggleSidebar}>
+        <FiMenu />
+      </button>
+      <div className="flex items-center gap-4">
+        <UserAvatar />
+        <HeaderMenu />
+      </div>
     </header>
   );
 }
