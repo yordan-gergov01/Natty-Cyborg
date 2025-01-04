@@ -61,33 +61,37 @@ function LoginForm() {
     setLoginPassword("");
   }
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div
+      className="flex items-center justify-center min-h-screen"
+      style={{ backgroundImage: 'url("public/intro-background.jpg")' }}
+    >
       {loading ? (
         <Loader />
       ) : (
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-6 rounded-lg shadow-md w-96"
+          className="bg-black bg-opacity-40 p-6 rounded-lg shadow-md w-96"
         >
-          <h2 className="text-2xl text-center font-bold mb-4">
+          <h2 className="text-2xl text-center text-white font-bold mb-4">
             Login To Your Account
           </h2>
-          <h3 className="text-sm text-center mb-5">
+          <h3 className="text-sm text-center text-white mb-5">
             Don&apos;t have an account?{" "}
-            <Link to="/register" className="text-blue-500 hover:underline">
+            <Link to="/register" className="text-blue-600 hover:underline">
               Sign Up
             </Link>
           </h3>
           <div className="mb-4">
-            <label className="block text-gray-700">Email</label>
+            <label className="block text-white">Email</label>
             <input
               type="email"
-              placeholder="johnsmith@gmail.com"
               value={email}
               name="email"
               onChange={(e) => setEmail(e.target.value)}
               className={`w-full px-3 py-2 border ${
-                errors.email ? "border-red-500" : "border-gray-300"
+                errors.email
+                  ? "border-red-500"
+                  : "border-gray-300 bg-black bg-opacity-20 text-white"
               } rounded-lg focus:outline-none focus:ring ${
                 errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
               }`}
@@ -97,15 +101,16 @@ function LoginForm() {
             )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Password</label>
+            <label className="block text-white">Password</label>
             <input
               type="password"
-              placeholder="**********"
               value={loginPassword}
               name="loginPassword"
               onChange={(e) => setLoginPassword(e.target.value)}
               className={`w-full px-3 py-2 border ${
-                errors.password ? "border-red-500" : "border-gray-300"
+                errors.password
+                  ? "border-red-500"
+                  : "border-gray-300 bg-black bg-opacity-20 text-white"
               } rounded-lg focus:outline-none focus:ring ${
                 errors.password ? "focus:ring-red-500" : "focus:ring-blue-500"
               }`}
@@ -117,14 +122,14 @@ function LoginForm() {
           <div className="flex flex-col items-center">
             <button
               type="submit"
-              className="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-300 transition"
+              className="w-full bg-white text-black py-2 px-4 rounded-lg hover:bg-gray-300 transition"
             >
               Login With Email
             </button>
 
             <div className="flex items-center w-full my-4">
               <div className="border-t border-gray-300 flex-grow"></div>
-              <span className="mx-4 text-gray-500">Or Sign In With</span>
+              <span className="mx-4 text-white">Or Sign In With</span>
               <div className="border-t border-gray-300 flex-grow"></div>
             </div>
 
