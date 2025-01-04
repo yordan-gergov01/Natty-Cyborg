@@ -5,7 +5,7 @@ import UserAvatar from "./UserAvatar";
 
 function Header({ toggleSidebar }) {
   return (
-    <header className="w-full bg-gray-800 gap-4 text-white py-2 px-4 flex justify-between items-center md:justify-end">
+    <header className="w-full gap-4 text-white py-2 px-4 flex justify-between items-center md:justify-end">
       <button className="md:hidden text-2xl" onClick={toggleSidebar}>
         <FiMenu />
       </button>

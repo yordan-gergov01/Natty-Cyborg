@@ -12,13 +12,16 @@ function AppLayout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white">
+    <div
+      className="flex min-h-screen text-white"
+      style={{ backgroundImage: 'url("public/intro-background.jpg")' }}
+    >
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
       <div className="flex flex-1 flex-col">
         <Header toggleSidebar={toggleSidebar} />
 
-        <main className="flex-1 bg-gray-800 overflow-y-auto p-4">
+        <main className="flex-1 overflow-y-auto p-4 bg-black bg-opacity-30">
           <Outlet />
         </main>
       </div>
