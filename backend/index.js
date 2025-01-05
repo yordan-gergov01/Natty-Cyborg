@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import env from "dotenv";
 import GoogleStrategy from "passport-google-oauth2";
 import { rateLimit } from "express-rate-limit";
-import passport from "passport";
+import passport, { use } from "passport";
 import session from "express-session";
 
 const app = express();
@@ -94,6 +94,20 @@ app.get(
     }
   }
 );
+
+app.get("/user, weight", async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await db.query(
+      "SELECT weight, date FROM progress WHERE user_id = $1 ORDER BY date DESC",
+      [userId]
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to fetch weights." });
+  }
+});
 
 app.post("/auth/google/signup", async (req, res) => {
   const { googleId, email, name } = req.body;
@@ -195,6 +209,22 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error." });
+  }
+});
+
+app.post("/user/weight", async (req, res) => {
+  const { weight } = req.body;
+  const userId = req.user.id;
+
+  try {
+    await db.query("INSERT INTO progress (user_id, weight) VALUES ($1, $2)", [
+      userId,
+      weight,
+    ]);
+    res.status(201).json({ message: "Weight added successfully." });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to add weight." });
   }
 });
 
