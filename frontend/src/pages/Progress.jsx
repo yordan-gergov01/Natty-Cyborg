@@ -1,128 +1,77 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-function Progress() {
+function Progress({ userId }) {
+  const [progressData, setProgressData] = useState([]);
+  const [averageWeight, setAverageWeight] = useState(0);
   const [weight, setWeight] = useState("");
-  const [weightEntries, setWeightEntries] = useState([]);
-  const [averageWeight, setAverageWeight] = useState(null);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchWeights();
-    fetchAverageWeight();
-  }, []);
-
-  async function addWeight() {
-    try {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) {
-        setError("No token found!");
-        return;
+    async function fetchProgress() {
+      try {
+        const response = await axios.get(`/progress/weekly/${userId}`);
+        setProgressData(response.data.data);
+        setAverageWeight(response.data.average);
+      } catch (err) {
+        console.error("Error fetching weekly progress:", err);
       }
-      await axios.post(
-        "http://localhost:3000/user/weight",
-        { weight },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setWeight("");
-      fetchWeights();
-      fetchAverageWeight();
-    } catch (err) {
-      setError("Failed to add weight.");
     }
-  }
+    fetchProgress();
+  }, [userId]);
 
-  async function fetchWeights() {
+  async function handleWeight() {
     try {
-      const token = localStorage.getItem("jwtToken");
-      const response = await axios.get("http://localhost:3000/user/weight", {
-        headers: { Authorization: `Bearer ${token}` },
+      await axios.post("http://localhost:3000/progress/add", {
+        user_id: userId,
+        weight: weight,
+        date: new Date().toISOString().split("T")[0],
       });
-      setWeightEntries(response.data);
+      setWeight("");
+      window.location.reload();
     } catch (err) {
-      setError("Failed to fetch weights.");
+      console.error("Error handling weight:", err);
     }
   }
 
-  async function fetchAverageWeight() {
-    try {
-      const token = localStorage.getItem("jwtToken");
-      const response = await axios.get(
-        "http://localhost:3000/user/weight/average",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setAverageWeight(response.data.averageWeight);
-    } catch (err) {
-      setError("Failed to fetch average weight.");
-    }
-  }
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-3xl font-bold mb-6 text-center">Weight Tracker</h2>
+    <div>
+      <h2>Weekly Progress</h2>
+      <input
+        type="number"
+        placeholder="Enter your weight"
+        value={weight}
+        onChange={(e) => setWeight(e.target.value)}
+      />
+      <button onClick={handleWeight}>Add Weight</button>
 
-      <div className="flex items-center justify-center gap-4 mb-8">
-        <input
-          type="number"
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          placeholder="Enter your weight"
-          className="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={addWeight}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-        >
-          Add Weight
-        </button>
-      </div>
-
-      <div className="overflow-x-auto">
-        <h3 className="text-2xl font-semibold mb-4">Daily Weights</h3>
-        <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="py-2 px-4 text-left">#</th>
-              <th className="py-2 px-4 text-left">Date</th>
-              <th className="py-2 px-4 text-left">Weight (kg)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {weightEntries.length > 0 ? (
-              weightEntries.map((entry, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="py-2 px-4">{index + 1}</td>
-                  <td className="py-2 px-4">
-                    {new Date(entry.date).toLocaleDateString()}
-                  </td>
-                  <td className="py-2 px-4">{entry.weight}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="3" className="py-4 text-center text-gray-500">
-                  No weight data available
-                </td>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Weight</th>
+          </tr>
+        </thead>
+        <tbody>
+          {progressData?.length > 0 ? (
+            progressData.map((entry) => (
+              <tr key={entry.date}>
+                <td>{entry.date}</td>
+                <td>{entry.weight} kg</td>
               </tr>
-            )}
-          </tbody>
-          <tfoot>
-            <tr className="bg-gray-100 font-semibold">
-              <td colSpan="2" className="py-2 px-4">
-                Weekly Average Weight
-              </td>
-              <td className="py-2 px-4">
-                {averageWeight !== null ? (
-                  <span>{averageWeight.toFixed(2)} kg</span>
-                ) : (
-                  "No data for the week"
-                )}
-              </td>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="2">No progress data available.</td>
             </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+          )}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th> Weekly Average Weight (7 days)</th>
+            <th>{averageWeight} kg</th>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 }
