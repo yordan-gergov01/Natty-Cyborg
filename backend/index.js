@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import env from "dotenv";
 import GoogleStrategy from "passport-google-oauth2";
 import { rateLimit } from "express-rate-limit";
-import passport, { use } from "passport";
+import passport from "passport";
 import session from "express-session";
 
 const app = express();
@@ -95,17 +95,23 @@ app.get(
   }
 );
 
-app.get("/user, weight", async (req, res) => {
-  const userId = req.user.id;
+app.get("progress/weekly/:user_id", async (req, res) => {
+  const { user_id } = req.params;
 
   try {
     const result = await db.query(
-      "SELECT weight, date FROM progress WHERE user_id = $1 ORDER BY date DESC",
-      [userId]
+      `SELECT date, weight FROM progress WHERE user_id = $1 AND date >= NOW() - INTERVAL '7 days' ORDER BY date ASC`,
+      [user_id]
     );
+
+    const weights = result.rows[0].map((row) => row.weight);
+    const average =
+      weights.reduce((sum, w) => sum + w, 0) / (weights.length || 1);
+
+    res.json({ data: result.rows, average: average.toFixed(2) });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Failed to fetch weights." });
+    res.status(500).json({ message: "Failed to fetch weekly progress." });
   }
 });
 
@@ -212,19 +218,18 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/user/weight", async (req, res) => {
-  const { weight } = req.body;
-  const userId = req.user.id;
+app.post("/progress/add", async (req, res) => {
+  const { user_id, weight, date } = req.body;
 
   try {
-    await db.query("INSERT INTO progress (user_id, weight) VALUES ($1, $2)", [
-      userId,
-      weight,
-    ]);
-    res.status(201).json({ message: "Weight added successfully." });
+    const result = await db.query(
+      "INSERT INTO progress (user_id, weight, date) VALUES ($1, $2, $3) RETURNING *",
+      [user_id, weight, date]
+    );
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Failed to add weight." });
+    res.status(500).json({ message: "Failed to log weight." });
   }
 });
 
