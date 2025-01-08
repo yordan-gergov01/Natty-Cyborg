@@ -219,9 +219,22 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/progress/add", async (req, res) => {
-  const { user_id, weight, date } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(400).json({ message: "No token provided." });
+  }
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user_id = decoded.id;
+
+    const { weight, date } = req.body;
+
+    if (!weight || !date) {
+      return res.status(400).json({ message: "Weight and date are required." });
+    }
+
     const result = await db.query(
       "INSERT INTO progress (user_id, weight, date) VALUES ($1, $2, $3) RETURNING *",
       [user_id, weight, date]

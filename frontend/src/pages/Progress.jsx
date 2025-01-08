@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+
 import axios from "axios";
 
-function Progress({ userId }) {
+import { jwtDecode } from "jwt-decode";
+
+function Progress() {
   const [progressData, setProgressData] = useState([]);
   const [averageWeight, setAverageWeight] = useState(0);
   const [weight, setWeight] = useState("");
@@ -9,7 +12,20 @@ function Progress({ userId }) {
   useEffect(() => {
     async function fetchProgress() {
       try {
-        const response = await axios.get(`/progress/weekly/${userId}`);
+        const token = localStorage.getItem("jwtToken");
+
+        if (!token) {
+          console.error("No token found.");
+          return;
+        }
+
+        const decoded = jwtDecode(token);
+        const userId = decoded.id;
+
+        const response = await axios.get(
+          `http://localhost:3000/progress/weekly/${userId}`
+        );
+        console.log(response.data); //check the response
         setProgressData(response.data.data);
         setAverageWeight(response.data.average);
       } catch (err) {
@@ -17,15 +33,24 @@ function Progress({ userId }) {
       }
     }
     fetchProgress();
-  }, [userId]);
+  }, []);
 
   async function handleWeight() {
     try {
-      await axios.post("http://localhost:3000/progress/add", {
-        user_id: userId,
-        weight: weight,
-        date: new Date().toISOString().split("T")[0],
-      });
+      const token = localStorage.getItem("jwtToken");
+
+      await axios.post(
+        "http://localhost:3000/progress/add",
+        {
+          weight: parseFloat(weight),
+          date: new Date().toISOString().split("T")[0],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setWeight("");
       window.location.reload();
     } catch (err) {
