@@ -59,43 +59,57 @@ function Progress() {
 
   return (
     <div>
-      <h2>Weekly Progress</h2>
+      <h2>Daily Weight</h2>
       <input
+        className="border border-gray-300 rounded-md px-4 py-2 w-auto focus:ring-2 focus:ring-blue-500 bg-black bg-opacity-20 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         type="number"
         placeholder="Enter your weight"
         value={weight}
         onChange={(e) => setWeight(e.target.value)}
       />
-      <button onClick={handleWeight}>Add Weight</button>
+      <button
+        onClick={handleWeight}
+        className="mt-2 ml-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition"
+      >
+        Add Weight
+      </button>
 
-      <table>
-        <thead>
+      <table className="table auto w-full border-collapse mt-8 border-blue-600 rounded-md shadow-sm">
+        <thead className="bg-blue-800">
           <tr>
-            <th>Date</th>
-            <th>Weight</th>
+            <th className="px-4 py-2 text-center font-medium text-white">
+              Date
+            </th>
+            <th className="px-4 py-2 text-center font-medium text-white">
+              Weight
+            </th>
           </tr>
         </thead>
         <tbody>
           {progressData?.length > 0 ? (
             progressData.map((entry) => (
               <tr key={entry.id}>
-                <td>{entry.date}</td>
-                <td>{entry.weight} kg</td>
+                <td className="px-4 py-2 text-center">
+                  {new Date(entry.date).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                  })}
+                </td>
+                <td className="px-4 py-2 text-center">{entry.weight} kg</td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="2">No progress data available.</td>
+              <td colSpan="2" className="px-4 py-2 text-center text-white">
+                No progress data available.
+              </td>
             </tr>
           )}
         </tbody>
-        <tfoot>
-          <tr>
-            <th> Weekly Average Weight (7 days)</th>
-            <th>{averageWeight} kg</th>
-          </tr>
-        </tfoot>
       </table>
+      <div className="text-right font-semibold mt-4">
+        {progressData?.length > 0 && `Weekly Average: ${averageWeight} kg`}
+      </div>
     </div>
   );
 }

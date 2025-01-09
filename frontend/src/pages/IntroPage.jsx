@@ -21,7 +21,7 @@ function IntroPage() {
         <div className="mt-8 flex gap-4 justify-center">
           <Link
             to="/login"
-            className="px-6 py-3 bg-blue-800 hover:bg-blue-900 text-white rounded-full text-lg"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-lg"
           >
             Sign In
           </Link>
