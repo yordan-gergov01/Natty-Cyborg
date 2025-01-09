@@ -25,9 +25,8 @@ function Progress() {
         const response = await axios.get(
           `http://localhost:3000/progress/weekly/${userId}`
         );
-        console.log(response.data); //check the response
-        setProgressData(response.data.data);
-        setAverageWeight(response.data.average);
+        setProgressData(response.data.data || []);
+        setAverageWeight(response.data.average || 0);
       } catch (err) {
         console.error("Error fetching weekly progress:", err);
       }
@@ -79,7 +78,7 @@ function Progress() {
         <tbody>
           {progressData?.length > 0 ? (
             progressData.map((entry) => (
-              <tr key={entry.date}>
+              <tr key={entry.id}>
                 <td>{entry.date}</td>
                 <td>{entry.weight} kg</td>
               </tr>

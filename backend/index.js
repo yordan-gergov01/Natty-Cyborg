@@ -95,16 +95,22 @@ app.get(
   }
 );
 
-app.get("progress/weekly/:user_id", async (req, res) => {
+app.get("/progress/weekly/:user_id", async (req, res) => {
   const { user_id } = req.params;
 
   try {
     const result = await db.query(
-      `SELECT date, weight FROM progress WHERE user_id = $1 AND date >= NOW() - INTERVAL '7 days' ORDER BY date ASC`,
+      `SELECT id, date, weight FROM progress WHERE user_id = $1 AND date >= NOW() - INTERVAL '7 days' ORDER BY date ASC`,
       [user_id]
     );
 
-    const weights = result.rows[0].map((row) => row.weight);
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No progress data found for this user." });
+    }
+
+    const weights = result.rows.map((row) => parseFloat(row.weight));
     const average =
       weights.reduce((sum, w) => sum + w, 0) / (weights.length || 1);
 
