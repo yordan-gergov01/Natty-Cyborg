@@ -25,12 +25,40 @@ function Progress() {
         const response = await axios.get(
           `http://localhost:3000/progress/weekly/${userId}`
         );
-        setProgressData(response.data.data || []);
-        setAverageWeight(response.data.average || 0);
+
+        const progress = response.data.data || [];
+        setProgressData(progress);
+
+        const groupedData = progress.reduce((acc, entry) => {
+          const entryDate = new Date(entry.date);
+          const weekStart = new Date(entryDate);
+          weekStart.setDate(entryDate.getDate() - entryDate.getDay());
+
+          const weekKey = weekStart.toISOString().split("T")[0];
+          if (!acc[weekKey]) acc[weekKey] = [];
+          acc[weekKey].push(entry);
+
+          return acc;
+        }, {});
+
+        const completeWeeks = Object.values(groupedData).filter(
+          (weekEntries) => weekEntries.length === 7
+        );
+
+        if (completeWeeks.length > 0) {
+          const lastWeek = completeWeeks[completeWeeks.length - 1];
+          const average =
+            lastWeek.reduce((sum, entry) => sum + entry.weight, 0) /
+            lastWeek.length;
+          setAverageWeight(average.toFixed(2));
+        } else {
+          setAverageWeight(0);
+        }
       } catch (err) {
         console.error("Error fetching weekly progress:", err);
       }
     }
+
     fetchProgress();
   }, []);
 
@@ -69,7 +97,7 @@ function Progress() {
       />
       <button
         onClick={handleWeight}
-        className="mt-2 ml-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition"
+        className="mt-2 ml-3 bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition"
       >
         Add Weight
       </button>
@@ -82,6 +110,9 @@ function Progress() {
             </th>
             <th className="px-4 py-2 text-center font-medium text-white">
               Weight
+            </th>
+            <th className="px-4 py-2 text-center font-medium text-white">
+              Average Weight (Weekly Change)
             </th>
           </tr>
         </thead>
