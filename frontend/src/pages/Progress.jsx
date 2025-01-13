@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-
 import axios from "axios";
-
 import { jwtDecode } from "jwt-decode";
 
 function Progress() {
   const [progressData, setProgressData] = useState([]);
-  const [averageWeight, setAverageWeight] = useState(0);
+  const [weeklyAverages, setWeeklyAverages] = useState([]);
   const [weight, setWeight] = useState("");
 
   useEffect(() => {
@@ -41,19 +39,18 @@ function Progress() {
           return acc;
         }, {});
 
-        const completeWeeks = Object.values(groupedData).filter(
-          (weekEntries) => weekEntries.length === 7
-        );
-
-        if (completeWeeks.length > 0) {
-          const lastWeek = completeWeeks[completeWeeks.length - 1];
-          const average =
-            lastWeek.reduce((sum, entry) => sum + entry.weight, 0) /
-            lastWeek.length;
-          setAverageWeight(average.toFixed(2));
-        } else {
-          setAverageWeight(0);
-        }
+        const weeklyAverages = Object.entries(groupedData)
+          .filter(([_, weekEntries]) => weekEntries.length === 7)
+          .map(([weekKey, weekEntries]) => {
+            const average =
+              weekEntries.reduce((sum, entry) => sum + entry.weight, 0) /
+              weekEntries.length;
+            return {
+              weekStart: weekKey,
+              averageWeight: average.toFixed(2),
+            };
+          });
+        setWeeklyAverages(weeklyAverages);
       } catch (err) {
         console.error("Error fetching weekly progress:", err);
       }
@@ -111,9 +108,6 @@ function Progress() {
             <th className="px-4 py-2 text-center font-medium text-white">
               Weight
             </th>
-            <th className="px-4 py-2 text-center font-medium text-white">
-              Average Weight (Weekly Change)
-            </th>
           </tr>
         </thead>
         <tbody>
@@ -138,9 +132,38 @@ function Progress() {
           )}
         </tbody>
       </table>
-      <div className="text-right font-semibold mt-4">
-        {progressData?.length > 0 && `Weekly Average: ${averageWeight} kg`}
-      </div>
+
+      <h3 className="mt-8 text-lg font-bold">Weekly Averages</h3>
+      <table className="table auto w-full border-collapse mt-4 border-blue-600 rounded-md shadow-sm">
+        <thead className="bg-blue-800">
+          <tr>
+            <th className="px-4 py-2 text-center font-medium text-white">
+              Week Start
+            </th>
+            <th className="px-4 py-2 text-center font-medium text-white">
+              Average Weight
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {weeklyAverages.length > 0 ? (
+            weeklyAverages.map((week) => (
+              <tr key={week.weekStart}>
+                <td className="px-4 py-2 text-center">{week.weekStart}</td>
+                <td className="px-4 py-2 text-center">
+                  {week.averageWeight} kg
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="2" className="px-4 py-2 text-center text-white">
+                No complete weekly data available.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
