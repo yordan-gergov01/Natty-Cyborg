@@ -27,6 +27,8 @@ function Progress() {
         const progress = response.data.data || [];
         setProgressData(progress);
 
+        console.log(progress); // to check
+
         const groupedData = progress.reduce((acc, entry) => {
           const entryDate = new Date(entry.date);
           const weekStart = new Date(entryDate);
@@ -39,17 +41,20 @@ function Progress() {
           return acc;
         }, {});
 
-        const weeklyAverages = Object.entries(groupedData)
-          .filter(([_, weekEntries]) => weekEntries.length === 7)
-          .map(([weekKey, weekEntries]) => {
+        console.log(groupedData); // to check
+
+        const weeklyAverages = Object.entries(groupedData).map(
+          ([weekKey, weekEntries]) => {
             const average =
               weekEntries.reduce((sum, entry) => sum + entry.weight, 0) /
               weekEntries.length;
+            console.log(average); // to check
             return {
               weekStart: weekKey,
               averageWeight: average.toFixed(2),
             };
-          });
+          }
+        );
         setWeeklyAverages(weeklyAverages);
       } catch (err) {
         console.error("Error fetching weekly progress:", err);

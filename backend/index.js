@@ -9,10 +9,16 @@ import GoogleStrategy from "passport-google-oauth2";
 import { rateLimit } from "express-rate-limit";
 import passport from "passport";
 import session from "express-session";
+import helmet from "helmet";
 
 const app = express();
-const port = 3000;
-const saltRounds = 10;
+
+// Set security HTTP headers
+app.use(helmet());
+
+// These two variables should be in .env file
+const port = process.env.PORT;
+const saltRounds = process.env.SALT_ROUNDS;
 env.config({ path: "../frontend/.env" });
 
 const db = new pg.Client({
@@ -77,7 +83,7 @@ app.get(
           },
           process.env.JWT_SECRET,
           {
-            expiresIn: "1h",
+            expiresIn: process.env.JWT_EXPIRES_IN,
           }
         );
         res.redirect(
@@ -131,7 +137,7 @@ app.post("/auth/google/signup", async (req, res) => {
     );
 
     const token = jwt.sign({ id: newUser.rows[0].id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: process.env.JWT_EXPIRES_IN,
     });
     res.json({ token, message: "Account created successfully!" });
   } catch (err) {
@@ -147,7 +153,7 @@ app.post("/register", async (req, res) => {
     const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
-    //see for token here after register
+    //see for token here after register !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (checkResult.rows.length > 0) {
       res
         .status(400)
@@ -179,7 +185,7 @@ app.post("/login", async (req, res) => {
   try {
     const result = await db.query(
       "SELECT * FROM users WHERE email = $1 OR google_id = $2",
-      [email, email]
+      [email, email] // to ckeck this why is 2 the same variables!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     );
 
     if (result.rows.length > 0) {
@@ -196,7 +202,7 @@ app.post("/login", async (req, res) => {
             { id: user.id, name: user.name },
             process.env.JWT_SECRET,
             {
-              expiresIn: "1h",
+              expiresIn: process.env.JWT_EXPIRES_IN,
             }
           );
           res.json({
@@ -211,7 +217,7 @@ app.post("/login", async (req, res) => {
         }
       } else {
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-          expiresIn: "1h",
+          expiresIn: process.env.JWT_EXPIRES_IN,
         });
         res.json({ token, message: "Login successful." });
       }
