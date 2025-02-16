@@ -16,10 +16,11 @@ const app = express();
 // Set security HTTP headers
 app.use(helmet());
 
+env.config({ path: "../frontend/.env" });
+
 // These two variables should be in .env file
 const port = process.env.PORT;
 const saltRounds = process.env.SALT_ROUNDS;
-env.config({ path: "../frontend/.env" });
 
 const db = new pg.Client({
   user: process.env.PG_USER,
