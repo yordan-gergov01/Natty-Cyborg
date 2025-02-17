@@ -22,16 +22,6 @@ env.config({ path: "../frontend/.env" });
 const port = process.env.PORT;
 const saltRounds = process.env.SALT_ROUNDS;
 
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-
-db.connect();
-
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 10,
