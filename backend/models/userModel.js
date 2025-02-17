@@ -12,11 +12,15 @@ const findUserByEmail = async function (email) {
 };
 
 const createUser = async function (name, email, password) {
-  const result = await db.query(
-    "INSERT INTO user (name, email, password) VALUES ($1, $2, $3) RETURNING *",
-    [name, email, password]
-  );
-  return result.rows[0];
+  try {
+    const result = await db.query(
+      "INSERT INTO user (name, email, password) VALUES ($1, $2, $3) RETURNING *",
+      [name, email, password]
+    );
+    return result.rows[0];
+  } catch (err) {
+    console.log("Error creating user.", err);
+  }
 };
 
 export { findUserByEmail, createUser };
