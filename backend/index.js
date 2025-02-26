@@ -176,7 +176,7 @@ app.post("/login", async (req, res) => {
   try {
     const result = await db.query(
       "SELECT * FROM users WHERE email = $1 OR google_id = $2",
-      [email, email] // to ckeck this why is 2 the same variables!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      [email, email]
     );
 
     if (result.rows.length > 0) {
