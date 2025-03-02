@@ -30,12 +30,26 @@ const register = async function (req, res) {
 
     const newUser = await createUser(name, email, passwordHash);
 
+    const token = signToken(newUser.id);
+
     res.status(201).json({
       status: "success",
       message: "User registered successfully.",
+      token,
     });
   } catch (err) {
-    console.err(err);
+    console.error(err);
+    res.status(500).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
+};
+
+const login = async function (req, res) {
+  try {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({
       status: "failed",
       message: "Server error",
