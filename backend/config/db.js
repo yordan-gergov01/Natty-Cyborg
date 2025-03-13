@@ -1,18 +1,13 @@
-import pg from "pg";
-import env from "dotenv";
+import knex from "knex";
 
-env.config({ path: "./../frontend/.env" });
-
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
+const db = knex({
+  client: "pg",
+  connection: {
+    host: process.env.PG_HOST,
+    user: process.env.PG_USER,
+    password: process.env.PG_PASSWORD,
+    database: process.env.PG_DATABASE,
+  },
 });
-
-db.connect()
-  .then(() => console.log("Connected to PostgreSQL"))
-  .catch((err) => console.log("Database connection error:", err));
 
 export default db;

@@ -1,26 +1,60 @@
 import db from "../config/db";
+import bcrypt from "bcrypt";
+
+const getAllUsers = async function () {
+  return await db("users").select("*");
+};
 
 const findUserByEmail = async function (email) {
-  try {
-    const result = await db.query("SELECT * FROM users WHERE email = $1", [
+  return await db("users").where({ email }).first();
+};
+
+const findUserById = async function (id) {
+  return await db("users").where({ id }).first();
+};
+
+const createUser = async function (name, email, password, role = "user") {
+  const saltRounds = parseInt(process.env.SALT_ROUNDS || 10);
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  return await db("users")
+    .insert({
+      name,
       email,
-    ]);
-    return result.rows[0];
-  } catch (err) {
-    console.log("User with this email cannot be found:", err);
-  }
+      password: hashedPassword,
+      role,
+    })
+    .returning("*");
 };
 
-const createUser = async function (name, email, password) {
-  try {
-    const result = await db.query(
-      "INSERT INTO user (name, email, password) VALUES ($1, $2, $3) RETURNING *",
-      [name, email, password]
-    );
-    return result.rows[0];
-  } catch (err) {
-    console.log("Error creating user.", err);
-  }
+const updateUser = async function (id, updatedData) {
+  return await db("users").where({ id }).update(updatedData).returning("*");
 };
 
-export { findUserByEmail, createUser };
+const deleteUser = async function (id) {
+  return await db("users").where({ id }).del();
+};
+
+const findOrCreateGoogleUser = async function (profile) {
+  let user = await db("users").where({ google_id: profile.id }).first();
+
+  if (!user) {
+    [user] = await db("users")
+      .insert({
+        google_id: profile.id,
+        email: profile.email,
+        name: profile.given_name,
+      })
+      .returning("*");
+  }
+  return user;
+};
+
+export {
+  findUserByEmail,
+  createUser,
+  findOrCreateGoogleUser,
+  findUserById,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+};

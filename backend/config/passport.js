@@ -1,3 +1,10 @@
+import passport from "passport";
+import GoogleStrategy from "passport-google-oauth2";
+import env from "dotenv";
+import { findOrCreateGoogleUser, findUserById } from "../models/userModel";
+
+env.config();
+
 passport.use(
   "google",
   new GoogleStrategy(
@@ -8,8 +15,19 @@ passport.use(
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log("Profile", profile);
-      done(null, profile);
+      const user = await findOrCreateGoogleUser(profile);
+      done(null, user);
     }
   )
 );
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  const user = await findUserById(id);
+  done(null, user);
+});
+
+export default passport;
