@@ -1,12 +1,12 @@
 import express from "express";
-import passport from "../config/passport";
+import passport from "../config/passport.js";
 
 import {
   getUsers,
   getOneUser,
   updateOneUser,
   deleteOneUser,
-} from "../controllers/userController";
+} from "../controllers/userController.js";
 
 import {
   register,
@@ -15,19 +15,19 @@ import {
   googleCallback,
   protect,
   restrictTo,
-} from "../controllers/authController";
+} from "../controllers/authController.js";
 
 const userRouter = express.Router();
 
-router.post("/signup", register);
-router.post("/login", login);
-router.get("/logout", logout);
+userRouter.post("/signup", register);
+userRouter.post("/login", login);
+userRouter.get("/logout", logout);
 
-router.get(
+userRouter.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
-router.get(
+userRouter.get(
   "/auth/google/callback",
   passport.authenticate("google", { session: false }),
   googleCallback

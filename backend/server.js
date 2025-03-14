@@ -2,7 +2,7 @@ import fs from "fs";
 import https from "https";
 import dotenv from "dotenv";
 
-import { app } from "./app";
+import { app } from "./app.js";
 
 // triggered when an exception occurs in synchronous code and is not handled by try...catch
 process.on("uncaughtException", (err) => {
@@ -15,8 +15,13 @@ dotenv.config({ path: "../.env" });
 
 const PORT = process.env.PORT || 8000;
 
-// TODO: create certificates for https
-const server = https.createServer({}, app);
+const server = https.createServer(
+  {
+    key: fs.readFileSync("key.pem"),
+    cert: fs.readFileSync("cert.pem"),
+  },
+  app
+);
 
 server.listen(PORT, () => {
   console.log(`Listening on port ${PORT}...`);

@@ -6,10 +6,11 @@ import hpp from "hpp";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import passport from "passport";
+import session from "express-session";
 
-import AppError from "./utils/AppError";
-import { globalErrorHandler } from "./controllers/errorController";
-import { userRouter } from "./routes/userRoutes";
+import AppError from "./utils/AppError.js";
+import { globalErrorHandler } from "./controllers/errorController.js";
+import { userRouter } from "./routes/userRoutes.js";
 
 const app = express();
 

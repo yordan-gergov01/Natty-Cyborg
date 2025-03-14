@@ -7,7 +7,7 @@ import {
   createUser,
   findUserById,
   findOrCreateGoogleUser,
-} from "../models/userModel";
+} from "../models/userModel.js";
 
 env.config();
 

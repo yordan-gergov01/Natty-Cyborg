@@ -1,7 +1,7 @@
 import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import env from "dotenv";
-import { findOrCreateGoogleUser, findUserById } from "../models/userModel";
+import { findOrCreateGoogleUser, findUserById } from "../models/userModel.js";
 
 env.config();
 

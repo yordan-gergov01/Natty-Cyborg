@@ -1,4 +1,4 @@
-import db from "../config/db";
+import db from "../config/db.js";
 
 const addNewWeight = async function (user_id, weight, date) {
   return await db("progress").insert({ user_id, weight, date }).returning("*");

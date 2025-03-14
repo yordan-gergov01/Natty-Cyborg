@@ -3,10 +3,10 @@ import {
   findUserById,
   updateUser,
   deleteUser,
-} from "../models/userModel";
+} from "../models/userModel.js";
 
-import { catchAsync } from "../utils/catchAsync";
-import { AppError } from "../utils/AppError";
+import { catchAsync } from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 const getUsers = catchAsync(async function (req, res) {
   const users = await getAllUsers();
