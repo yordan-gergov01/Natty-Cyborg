@@ -4,4 +4,4 @@ function catchAsync(fn) {
   };
 }
 
-export { catchAsync };
+export default catchAsync;

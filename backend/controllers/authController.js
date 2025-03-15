@@ -9,6 +9,9 @@ import {
   findOrCreateGoogleUser,
 } from "../models/userModel.js";
 
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
+
 env.config();
 
 const signToken = function (id) {
@@ -43,71 +46,43 @@ const createSendToken = function (user, statusCode, res) {
   });
 };
 
-const register = async function (req, res) {
+const register = catchAsync(async function (req, res) {
   const { name, email, password } = req.body;
 
-  try {
-    const existingUser = await findUserByEmail(email);
+  const existingUser = await findUserByEmail(email);
 
-    if (existingUser) {
-      return res.status(400).json({
-        status: "failed",
-        message: "Email already exists. Try logging in.",
-      });
-    }
-
-    const saltRounds = parseInt(process.env.SALT_ROUNDS, 10);
-    const passwordHash = await bcrypt.hash(password, saltRounds);
-
-    const newUser = await createUser(name, email, passwordHash);
-
-    createSendToken(newUser[0], 201, res);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      status: "failed",
-      message: "Signup failed.",
-    });
+  if (existingUser) {
+    return next(new AppError("Email already exists. Try logging in.", 400));
   }
-};
 
-const login = async function (req, res) {
-  try {
-    const { email, password } = req.body;
+  const saltRounds = parseInt(process.env.SALT_ROUNDS, 10);
+  const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    if (!email || !password) {
-      return res.status(400).json({
-        status: "failed",
-        error: "Email and password are required.",
-      });
-    }
+  const newUser = await createUser(name, email, passwordHash);
 
-    const user = await findUserByEmail(email);
+  createSendToken(newUser[0], 201, res);
+});
 
-    if (!user) {
-      return res.status(401).json({
-        status: "failed",
-        error: "Email is not correct.",
-      });
-    }
+const login = catchAsync(async function (req, res) {
+  const { email, password } = req.body;
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordMatch) {
-      return res.status(401).json({
-        status: "failed",
-        error: "Password is not correct.",
-      });
-    }
-    createSendToken(user, 200, res);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      status: "failed",
-      message: "Login failed.",
-    });
+  if (!email || !password) {
+    return next(new AppError("Email and password are required.", 400));
   }
-};
+
+  const user = await findUserByEmail(email);
+
+  if (!user) {
+    return next(new AppError("Email is not correct.", 401));
+  }
+
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordMatch) {
+    return next(new AppError("Password is not correct.", 401));
+  }
+  createSendToken(user, 200, res);
+});
 
 const logout = function (req, res) {
   res.cookie("jwt", "loggedout", {
@@ -120,38 +95,32 @@ const logout = function (req, res) {
   });
 };
 
-const googleCallback = async function (req, res) {
-  try {
-    const user = await findOrCreateGoogleUser({ google_id: req.user.id });
+const googleCallback = catchAsync(async function (req, res) {
+  const user = await findOrCreateGoogleUser({ google_id: req.user.id });
 
-    if (user) {
-      const token = jwt.sign(
-        {
-          id: user.id,
-          name: user.name,
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: process.env.JWT_EXPIRES_IN,
-        }
-      );
-      return res.redirect(
-        `http://localhost:5173/google-login?token=${token}&name=${user.name}`
-      );
-    } else {
-      return res.redirect(
-        `http://localhost:5173/signup-google?googleId=${req.user.id}&email=${req.user.emails[0].value}&name=${req.user.name.givenName}`
-      );
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      message: "Server error.",
-    });
+  if (user) {
+    const token = jwt.sign(
+      {
+        id: user.id,
+        name: user.name,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      }
+    );
+    return res.redirect(
+      `http://localhost:5173/google-login?token=${token}&name=${user.name}`
+    );
+  } else {
+    return res.redirect(
+      `http://localhost:5173/signup-google?googleId=${req.user.id}&email=${req.user.emails[0].value}&name=${req.user.name.givenName}`
+    );
   }
-};
+});
 
-const protect = async function (req, res, next) {
+const protect = catchAsync(async function (req, res, next) {
+  // Getting token and check if it's there
   let token;
 
   if (
@@ -164,33 +133,28 @@ const protect = async function (req, res, next) {
   }
 
   if (!token) {
-    return res.status(401).json({
-      status: "failed",
-      error: "Unauthorized - No token provided.",
-    });
+    return next(
+      new AppError("You are not logged in! Please log in to get acess.", 401)
+    );
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const currentUser = await findUserById(decoded.id);
+  // Verification token
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!currentUser) {
-      return res.status(401).json({
-        status: "failed",
-        error: "The user belonging to this token no longer exists.",
-      });
-    }
+  // Check if user still exists
+  const currentUser = await findUserById(decoded.id);
 
-    req.user = currentUser;
-    next();
-  } catch (err) {
-    console.log(err);
-    res.status(401).json({
-      status: "failed",
-      error: "Unauthorized - Invalid token.",
-    });
+  if (!currentUser) {
+    return next(
+      new AppError("The user belonging to this token no longer exists.", 401)
+    );
   }
-};
+
+  // Grant access to protected route
+  // only if everything is correct
+  req.user = currentUser;
+  next();
+});
 
 const isLoggedIn = async function (req, res, next) {
   if (req.cookies.jwt) {
