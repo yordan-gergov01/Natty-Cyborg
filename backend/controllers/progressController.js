@@ -54,7 +54,6 @@
 // });
 import {
   addNewProgress,
-  getWeeklyProgress,
   getProgressByUser,
   getAllAddedProgress,
   getAverageWeeklyProgress,
@@ -171,3 +170,12 @@ const calculateWeeklyAverage = catchAsync(async function (req, res, next) {
     },
   });
 });
+
+export {
+  getAllProgress,
+  getOneProgress,
+  addWeight,
+  updateOneProgress,
+  deleteOneProgress,
+  calculateWeeklyAverage,
+};

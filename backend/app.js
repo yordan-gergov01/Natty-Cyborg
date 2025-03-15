@@ -11,6 +11,7 @@ import session from "express-session";
 import AppError from "./utils/AppError.js";
 import { globalErrorHandler } from "./controllers/errorController.js";
 import { userRouter } from "./routes/userRoutes.js";
+import { progressRouter } from "./routes/progressRoutes.js";
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use(passport.session());
 
 app.use("/api", limiter);
 app.use("/api/users", userRouter);
+app.use("/api/progress", progressRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
