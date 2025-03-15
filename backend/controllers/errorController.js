@@ -1,3 +1,38 @@
+import AppError from "../utils/AppError.js";
+
+const handleInvalidDataType = function (err) {
+  const valueMatch = err.message.match(
+    /invalid input syntax for type integer: "(.*)"/
+  );
+  const invalidValue = valueMatch ? valueMatch[1] : "unknown";
+
+  const message = `Invalid value for field: ${invalidValue}`;
+  return new AppError(message, 400);
+};
+
+const handleDuplicateFieldsDB = function (err) {
+  const detail = err.detail || "";
+  const valueMatch = detail.match(/\(([^)]+)\)/);
+  const message = `Duplicate field value: '${valueMatch}'. Please use another value!`;
+
+  return new AppError(message, 400);
+};
+
+const handleConstraintViolation = function (err) {
+  const message =
+    err.detail || "Invalid input data. Check constraints violated.";
+
+  return new AppError(message, 400);
+};
+
+const handleJWT = function (err) {
+  return new AppError("Invalid token. Please log in again!", 401);
+};
+
+const handleJWTExpired = function (err) {
+  return new AppError("Your token has expired! Please log in again.", 401);
+};
+
 const sendErrorDevelopment = function (req, res) {
   res.status(err.statusCode).json({
     status: err.status,
@@ -33,7 +68,17 @@ const globalErrorHandler = function (err, req, res, next) {
   if (process.env.NODE_ENV === "development") {
     sendErrorDevelopment(err, res);
   } else if (process.env.NODE_ENV === "production") {
-    sendErrorProduction(err, res);
+    let error = { ...err };
+    error.message = err.message;
+
+    // PostgreSQL error handling (validation)
+    if (error.code === "22P02") error = handleInvalidDataType(error);
+    if (error.code === "23505") error = handleDuplicateFieldsDB(error);
+    if (error.code === "23514") error = handleConstraintViolation(error);
+    if (error.name === "JsonWebTokenError") error = handleJWT();
+    if (error.name === "TokenExpiredError") error = handleJWTExpired();
+
+    sendErrorProduction(error, res);
   }
 };
 
