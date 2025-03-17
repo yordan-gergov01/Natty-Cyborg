@@ -2,15 +2,18 @@ import db from "../config/db.js";
 import bcrypt from "bcrypt";
 
 const getAllUsers = async function () {
-  return await db("users").select("*");
+  return await db("users").select("id", "name", "email");
 };
 
 const findUserByEmail = async function (email) {
-  return await db("users").where({ email }).first();
+  return await db("users")
+    .where({ email })
+    .select("id", "name", "email")
+    .first();
 };
 
 const findUserById = async function (id) {
-  return await db("users").where({ id }).first();
+  return await db("users").where({ id }).select("id", "name", "email").first();
 };
 
 const createUser = async function (name, email, password, role = "user") {
@@ -27,7 +30,10 @@ const createUser = async function (name, email, password, role = "user") {
 };
 
 const updateUser = async function (id, updatedData) {
-  return await db("users").where({ id }).update(updatedData).returning("*");
+  return await db("users")
+    .where({ id })
+    .update(updatedData)
+    .returning("id", "name", "email");
 };
 
 const deleteUser = async function (id) {
