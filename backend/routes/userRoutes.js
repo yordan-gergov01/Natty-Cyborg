@@ -17,9 +17,12 @@ import {
   restrictTo,
 } from "../controllers/authController.js";
 
+import { validate } from "../utils/validation/validate.js";
+import { userSchema } from "../utils/validation/validationSchema.js";
+
 const userRouter = express.Router();
 
-userRouter.post("/signup", register);
+userRouter.post("/signup", validate(userSchema), register);
 userRouter.post("/login", login);
 userRouter.get("/logout", logout);
 
@@ -43,7 +46,7 @@ userRouter.route("/").get(getUsers);
 userRouter
   .route("/:id")
   .get(getOneUser)
-  .patch(updateOneUser)
+  .patch(validate(userSchema), updateOneUser)
   .delete(deleteOneUser);
 
 export { userRouter };
