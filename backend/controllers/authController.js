@@ -46,7 +46,7 @@ const createSendToken = function (user, statusCode, res) {
   });
 };
 
-const register = catchAsync(async function (req, res) {
+const register = catchAsync(async function (req, res, next) {
   const { name, email, password } = req.body;
 
   const existingUser = await findUserByEmail(email);
@@ -58,12 +58,15 @@ const register = catchAsync(async function (req, res) {
   const saltRounds = parseInt(process.env.SALT_ROUNDS, 10);
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
-  const newUser = await createUser(name, email, passwordHash);
-
-  createSendToken(newUser[0], 201, res);
+  try {
+    const newUser = await createUser(name, email, passwordHash);
+    createSendToken(newUser[0], 201, res);
+  } catch (err) {
+    return next(new AppError(err.message, 403));
+  }
 });
 
-const login = catchAsync(async function (req, res) {
+const login = catchAsync(async function (req, res, next) {
   const { email, password } = req.body;
 
   if (!email || !password) {

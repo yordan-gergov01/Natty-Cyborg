@@ -19,6 +19,15 @@ const findUserById = async function (id) {
 const createUser = async function (name, email, password, role = "user") {
   const saltRounds = parseInt(process.env.SALT_ROUNDS || 10);
   const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  const existingAdmin = await db("users").where({ role: "admin" }).first();
+
+  if (existingAdmin && role === "admin") {
+    throw new Error(
+      "An admin user already exists. You cannot create another admin."
+    );
+  }
+
   return await db("users")
     .insert({
       name,
