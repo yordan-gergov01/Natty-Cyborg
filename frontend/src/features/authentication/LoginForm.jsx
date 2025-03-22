@@ -18,6 +18,8 @@ function LoginForm() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    setErrors({});
+
     if (!email) {
       setErrors((prev) => ({ ...prev, email: "Email is required!" }));
       return;
@@ -34,7 +36,7 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:3000/login", {
+      const response = await axios.post("https://localhost:3000/login", {
         email,
         loginPassword,
       });
